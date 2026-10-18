@@ -4,9 +4,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { routeTree } from './routeTree.gen';
+import { setUnauthorizedHandler } from '@/lib/api/client';
 
 const queryClient = new QueryClient();
 const router = createRouter({ routeTree, context: { queryClient } });
+
+
+setUnauthorizedHandler(() => {
+  if (router.state.location.pathname === '/login') return;
+  queryClient.clear();
+  void router.navigate({ to: '/login', search: { redirect: router.state.location.href } });
+});
 
 declare module '@tanstack/react-router' {
   interface Register {

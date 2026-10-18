@@ -1,13 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/')({ component: Home });
-
-function Home() {
-  return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold">CMF Design Assistant</h1>
-      <Button className="mt-4">Test</Button>
-    </div>
-  );
-}
+export const Route = createFileRoute('/')({
+  beforeLoad: () => {
+    throw redirect({ to: '/projects' });
+  },
+});

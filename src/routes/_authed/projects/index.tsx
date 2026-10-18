@@ -1,5 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { projectsQueryOptions } from '@/lib/queries/projects';
+import { ProjectsError } from '@/features/projects/projects-error';
+import { ProjectsPage } from '@/features/projects/projects-page';
+
 
 export const Route = createFileRoute('/_authed/projects/')({
-    component: () => <h1 className="text-2xl font-bold">Projects</h1>,
+    loader: ({ context }) => context.queryClient.ensureQueryData(projectsQueryOptions),
+    errorComponent: ProjectsError,
+    component: () => <ProjectsPage />,
 });

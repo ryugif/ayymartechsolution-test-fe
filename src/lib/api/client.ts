@@ -39,11 +39,14 @@ export async function api<T>(path: string, { method = 'GET', json, signal }: Opt
     throw new ApiError(0, 'NETWORK_ERROR', 'Cannot reach the server');
   }
 
+  if (!res.ok) throw await toApiError(res, path);
   const body = await readJson(res);
-  if (!res.ok) {
-    const error = ApiError.fromBody(res.status, body);
-    if (error.code === 'AUTH_REQUIRED' && path !== '/auth/me') onUnauthorized?.();
-    throw error;
-  }
   return (body as { data: T } | undefined)?.data as T;
+}
+
+/** Read an error response, tell the app if the session ended, return an ApiError. */
+export async function toApiError(res: Response, path: string): Promise<ApiError> {
+  const error = ApiError.fromBody(res.status, await readJson(res));
+  if (error.code === 'AUTH_REQUIRED' && path !== '/auth/me') onUnauthorized?.();
+  return error;
 }

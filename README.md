@@ -1,4 +1,4 @@
-# CMF Design Assistant — Frontend
+# Frontend
 
 Frontend application for the CMF Design Assistant, built with React, TypeScript, and Vite.
 

@@ -1,5 +1,7 @@
 import { ApiError } from './errors';
 
+const API_URL = import.meta.env.VITE_API_URL ?? '/api';
+
 type Options = {
   method?: string;
   json?: unknown;
@@ -27,7 +29,7 @@ async function readJson(res: Response): Promise<unknown> {
 export async function api<T>(path: string, { method = 'GET', json, signal }: Options = {}): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`/api${path}`, {
+    res = await fetch(`${API_URL}${path}`, {
       method,
       credentials: 'include',
       signal,

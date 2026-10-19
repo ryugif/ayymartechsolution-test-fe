@@ -39,10 +39,10 @@ pnpm install
 
 ### 2. Configure environment variables
 
-Create a `.env` file in the project root:
+Copy the example environment file to `.env`:
 
-```env
-VITE_API_URL=http://localhost:3000/api
+```bash
+cp .env.example .env
 ```
 
 | Variable | Description | Default |

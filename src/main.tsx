@@ -7,8 +7,12 @@ import { routeTree } from './routeTree.gen';
 import { setUnauthorizedHandler } from '@/lib/api/client';
 
 const queryClient = new QueryClient();
-const router = createRouter({ routeTree, context: { queryClient } });
-
+const router = createRouter({
+  routeTree,
+  context: { queryClient },
+  defaultPreload: 'intent',
+  defaultPreloadStaleTime: 0,
+});
 
 setUnauthorizedHandler(() => {
   if (router.state.location.pathname === '/login') return;

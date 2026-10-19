@@ -5,12 +5,20 @@ import { ApiError } from '../api/errors';
 
 export const projectKeys = {
   all: ['projects'] as const,
+  detail: (id: string) => ['projects', id] as const,
+  messages: (id: string) => ['projects', id, 'messages'] as const,
 };
 
 export const projectsQueryOptions = queryOptions({
   queryKey: projectKeys.all,
   queryFn: projectsApi.list,
 });
+
+export const projectQueryOptions = (id: string) =>
+  queryOptions({
+    queryKey: projectKeys.detail(id),
+    queryFn: () => projectsApi.get(id),
+  });
 
 /** Create a project, then refresh the list. */
 export function useCreateProject() {
@@ -38,6 +46,31 @@ export function useUpdateProject() {
       if (error instanceof ApiError && error.code === 'PROJECT_NOT_FOUND') {
         void queryClient.invalidateQueries({ queryKey: projectKeys.all });
       }
+    },
+  });
+}
+
+/** Archive a project. A toast offers Undo. */
+export function useArchiveProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => projectsApi.archive(id),
+    onSuccess: async (project) => {
+      await queryClient.invalidateQueries({ queryKey: projectKeys.all });
+      toast.success('Project archived', {
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            projectsApi
+              .unarchive(project.id)
+              .then(() => queryClient.invalidateQueries({ queryKey: projectKeys.all }))
+              .catch(() => toast.error('Could not restore the project'));
+          },
+        },
+      });
+    },
+    onError: (error) => {
+      toast.error(error instanceof ApiError ? error.message : 'Could not archive the project');
     },
   });
 }

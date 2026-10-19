@@ -1,13 +1,18 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { ResetConversationDialog } from '@/features/chat/reset-conversation-dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Project } from '@/lib/api/projects';
 import { projectsQueryOptions } from '@/lib/queries/projects';
+import { ArchiveProjectDialog } from './archive-project-dialog';
+import { ProjectCard } from './project-card';
 import { ProjectFormDialog, type ProjectDialogState } from './project-form-dialog';
 
 export function ProjectsPage() {
     const { data: projects } = useSuspenseQuery(projectsQueryOptions);
     const [dialog, setDialog] = useState<ProjectDialogState>(null);
+    const [resetTarget, setResetTarget] = useState<Project | null>(null);
+    const [archiveTarget, setArchiveTarget] = useState<Project | null>(null);
 
     return (
         <div className="space-y-6">
@@ -22,26 +27,41 @@ export function ProjectsPage() {
                 <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {projects.map((p) => (
                         <li key={p.id}>
-                            <Card className="h-full">
-                                <CardHeader>
-                                    <CardTitle className="line-clamp-1">{p.title}</CardTitle>
-                                    <CardDescription className="line-clamp-3">
-                                        {p.description ?? 'No design context yet'}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>Updated {new Date(p.updatedAt).toLocaleDateString()}</span>
-                                    <Button variant="ghost" size="sm" onClick={() => setDialog({ mode: 'edit', project: p })}>
-                                        Edit
-                                    </Button>
-                                </CardContent>
-                            </Card>
+                            <ProjectCard
+                                project={p}
+                                onEdit={() => setDialog({ mode: 'edit', project: p })}
+                                onReset={() => setResetTarget(p)}
+                                onArchive={() => setArchiveTarget(p)}
+                            />
                         </li>
                     ))}
                 </ul>
             )}
 
             <ProjectFormDialog state={dialog} onClose={() => setDialog(null)} />
+
+            {resetTarget && (
+                <ResetConversationDialog
+                    key={resetTarget.id}
+                    projectId={resetTarget.id}
+                    projectTitle={resetTarget.title}
+                    open
+                    onOpenChange={(open) => {
+                        if (!open) setResetTarget(null);
+                    }}
+                />
+            )}
+
+            {archiveTarget && (
+                <ArchiveProjectDialog
+                    key={archiveTarget.id}
+                    project={archiveTarget}
+                    open
+                    onOpenChange={(open) => {
+                        if (!open) setArchiveTarget(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

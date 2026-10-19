@@ -171,6 +171,7 @@ Ensure the NestJS backend:
 For local development, allow these frontend origins as needed:
 
 ```text
+http://localhost:5173
 http://localhost:8080
 ```
 
